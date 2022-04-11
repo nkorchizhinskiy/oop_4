@@ -2,8 +2,10 @@ from PyQt5.QtWidgets import QDialog, \
                             QTableWidget, \
                             QSpinBox, \
                             QLabel, \
-                            QAbstractItemView
+                            QAbstractItemView, \
+                            QTableWidgetItem
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QMessageBox
 
 
 
@@ -53,7 +55,10 @@ class MainWindow(QDialog):
         # // SIGNALS
         self.spin_box_row.valueChanged.connect(self.editing_tables)
         self.spin_box_column.valueChanged.connect(self.editing_tables)
-
+        
+        self.table_1.cellChanged.connect(self.get_values_in_table_1)
+        self.table_2.cellChanged.connect(self.get_values_in_table_2)
+        
 
     def editing_tables(self):
         """Set rows/columns values 0-10 (maximum in spin-box)"""
@@ -74,5 +79,38 @@ class MainWindow(QDialog):
             table_name.setRowHeight(row, 3)
         for column in range(10):
             table_name.setColumnWidth(column, 3)
+    
+    def get_values_in_table_1(self, row: int, column: int):
+        print(f'Таблицы 1 - cтрока {row} - столбец {column} - {self.table_1.item(row, column).text()}')
+        self.check_values_from_table(self.table_1, row, column)
+        
+        
+    def get_values_in_table_2(self, row: int, column: int):
+        print(f'Таблица 2 - строка {row} - столбец {column} - {self.table_2.item(row, column).text()}')
+        self.check_values_from_table(self.table_2, row, column)
                 
      
+    def check_values_from_table(self, table_name: object, row: int, column: int):
+        if table_name.item(row, column).text() == '':
+            pass
+        elif table_name.item(row, column).text()[0] == '-':
+            try:
+                print(float(table_name.item(row, column).text()))
+            except Exception as e:
+                self.erroneous_input(table_name, row, column)
+        else:
+            try:
+                print(float(table_name.item(row, column).text()))
+            except Exception as e:
+                self.erroneous_input(table_name, row, column)
+    
+    
+    def erroneous_input(self, table_name: object, row: int, column: int):
+        '''Method. which operate mistakes from person's input'''
+        QMessageBox.warning(self, 'Ошибка!', 'Введите число!')
+        table_name.setItem(row, column, QTableWidgetItem(''))
+        
+        
+        
+        
+        
