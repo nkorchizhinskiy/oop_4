@@ -1,3 +1,4 @@
+from operator import truediv
 from PyQt5.QtWidgets import QDialog, \
                             QTableWidget, \
                             QSpinBox, \
@@ -18,10 +19,12 @@ class MainWindow(QDialog):
         self.resize(1600, 800)
         self.setWindowTitle('Лабораторная 3')
         self.font_label = QFont('Times New Roman', 14)
+        self.empty = False
 
         # // Create Labels
         self.label_spin_box_row = QLabel('Количество строк', self)
         self.label_spin_box_column = QLabel('Количество столбцов', self)
+        
         # // Moving Labels
         self.label_spin_box_row.move(30, 30)
         self.label_spin_box_column.move(200, 30)
@@ -32,11 +35,28 @@ class MainWindow(QDialog):
         # // Create Spin-boxes
         self.spin_box_row = QSpinBox(self)
         self.spin_box_column = QSpinBox(self)
+        self.spin_box_ratio_1 = QSpinBox(self)
+        self.spin_box_ratio_2 = QSpinBox(self)
+        self.spin_box_ratio_1.setButtonSymbols(2)
+        self.spin_box_ratio_2.setButtonSymbols(2)
+        
         self.spin_box_row.setMaximum(10)
         self.spin_box_column.setMaximum(10)
+        self.spin_box_ratio_1.setMaximum(-99)
+        self.spin_box_ratio_2.setMaximum(-99)
+        self.spin_box_ratio_1.setMaximum(99)
+        self.spin_box_ratio_2.setMaximum(99)
         # // Moved Spin-boxes
         self.spin_box_row.move(30, 50)
         self.spin_box_column.move(200, 50)
+        self.spin_box_ratio_1.move(30, 350)
+        self.spin_box_ratio_2.move(550, 350)
+        
+        self.spin_box_ratio_1.setValue(1)
+        self.spin_box_ratio_2.setValue(1)
+        
+        self.spin_box_ratio_1.setDisabled(not(self.empty))
+        self.spin_box_ratio_2.setDisabled(not(self.empty))
 
         # // Tables
         self.table_1 = QTableWidget(self)
@@ -60,6 +80,8 @@ class MainWindow(QDialog):
         self.table_1.cellChanged.connect(self.get_values_in_table_1)
         self.table_2.cellChanged.connect(self.get_values_in_table_2)
         
+        self.spin_box_ratio_1.valueChanged.connect(self.ratio_values)        
+        self.spin_box_ratio_2.valueChanged.connect(self.ratio_values)        
 
     def editing_tables(self):
         """Set rows/columns values 0-10 (maximum in spin-box)"""
@@ -108,15 +130,15 @@ class MainWindow(QDialog):
         table_name.setItem(row, column, QTableWidgetItem(''))
     
     def is_not_empty_table(self):
-        empty = False
+        self.empty = False
         for row in range(self.spin_box_row.value()):
             for column in range(self.spin_box_column.value()):
                 try:
                     print(self.table_1.item(row, column).text())
                     if self.table_1.item(row, column).text() == '':
-                        empty = True
+                        self.empty = True
                 except AttributeError:
-                    empty = True
+                    self.empty = True
             print('\n')
         print('\n\n\n')
         for row in range(self.spin_box_row.value()):
@@ -124,13 +146,15 @@ class MainWindow(QDialog):
                 try:
                     print(self.table_2.item(row, column).text())
                     if self.table_2.item(row, column).text() == '':
-                        empty = True
+                        self.empty = True
                 except AttributeError:
-                    empty = True
+                    self.empty = True
             print('\n')
         
-        if not empty:
+        if not self.empty:
             self.count_values_in_tables()
+        self.spin_box_ratio_1.setEnabled(not(self.empty))
+        self.spin_box_ratio_2.setEnabled(not(self.empty))
     
     def count_values_in_tables(self):
         for row in range(self.spin_box_row.value()):
@@ -138,7 +162,25 @@ class MainWindow(QDialog):
                 temp_value = Decimal(self.table_1.item(row, column).text()) + \
                              Decimal(self.table_2.item(row, column).text())
                 self.table_3.setItem(row, column, QTableWidgetItem(str(temp_value)))
-                
+             
+    def ratio_values(self):
+        if self.spin_box_ratio_1.isEnabled:
+            for row in range(self.spin_box_row.value()):
+                for column in range(self.spin_box_column.value()):
+                    result = Decimal(self.table_1.item(row, column).text()) * \
+                             self.spin_box_ratio_1.value()
+                    self.table_1.setItem(row, column, QTableWidgetItem(str(result)))
+        
+        if self.spin_box_ratio_2.isEnabled:
+            for row in range(self.spin_box_row.value()):
+                for column in range(self.spin_box_column.value()):
+                    result = Decimal(self.table_2.item(row, column).text()) * \
+                             self.spin_box_ratio_2.value()
+                    self.table_2.setItem(row, column, QTableWidgetItem(str(result)))
+        
+                    
+                            
+       
         
         
         
