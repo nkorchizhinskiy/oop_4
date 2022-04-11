@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QDialog, \
                             QTableWidgetItem
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMessageBox
+from decimal import Decimal
 
 
 
@@ -81,14 +82,10 @@ class MainWindow(QDialog):
             table_name.setColumnWidth(column, 3)
     
     def get_values_in_table_1(self, row: int, column: int):
-        print(f'Таблицы 1 - cтрока {row} - столбец {column} - {self.table_1.item(row, column).text()}')
-        self.check_values_from_table(self.table_1, row, column)
-        
+        self.check_values_from_table(self.table_1, row, column)    
         
     def get_values_in_table_2(self, row: int, column: int):
-        print(f'Таблица 2 - строка {row} - столбец {column} - {self.table_2.item(row, column).text()}')
-        self.check_values_from_table(self.table_2, row, column)
-                
+        self.check_values_from_table(self.table_2, row, column)             
      
     def check_values_from_table(self, table_name: object, row: int, column: int):
         if table_name.item(row, column).text() == '':
@@ -103,13 +100,45 @@ class MainWindow(QDialog):
                 print(float(table_name.item(row, column).text()))
             except Exception as e:
                 self.erroneous_input(table_name, row, column)
-    
+        self.is_not_empty_table()
     
     def erroneous_input(self, table_name: object, row: int, column: int):
         '''Method. which operate mistakes from person's input'''
         QMessageBox.warning(self, 'Ошибка!', 'Введите число!')
         table_name.setItem(row, column, QTableWidgetItem(''))
+    
+    def is_not_empty_table(self):
+        empty = False
+        for row in range(self.spin_box_row.value()):
+            for column in range(self.spin_box_column.value()):
+                try:
+                    print(self.table_1.item(row, column).text())
+                    if self.table_1.item(row, column).text() == '':
+                        empty = True
+                except AttributeError:
+                    empty = True
+            print('\n')
+        print('\n\n\n')
+        for row in range(self.spin_box_row.value()):
+            for column in range(self.spin_box_column.value()):
+                try:
+                    print(self.table_2.item(row, column).text())
+                    if self.table_2.item(row, column).text() == '':
+                        empty = True
+                except AttributeError:
+                    empty = True
+            print('\n')
         
+        if not empty:
+            self.count_values_in_tables()
+    
+    def count_values_in_tables(self):
+        for row in range(self.spin_box_row.value()):
+            for column in range(self.spin_box_column.value()):
+                temp_value = Decimal(self.table_1.item(row, column).text()) + \
+                             Decimal(self.table_2.item(row, column).text())
+                self.table_3.setItem(row, column, QTableWidgetItem(str(temp_value)))
+                
         
         
         
